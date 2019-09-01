@@ -63,3 +63,4 @@ typings/
 _site/
 .jekyll-metadata
 
+.idea/
