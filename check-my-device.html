@@ -16,6 +16,10 @@
 			padding: 5px 10px;
 			border: thin solid gray;
 		}
+
+		th {
+			text-align: right
+		}
 	</style>
 </head>
 
@@ -40,20 +44,121 @@
 				<th>内存</th>
 				<td id="deviceMemory"></td>
 			</tr>
+			<tr>
+				<th>启用Cookies</th>
+				<td id="cookieEnabled"></td>
+			</tr>
+			<tr>
+				<th>请勿追踪</th>
+				<td id="doNotTrack"></td>
+			</tr>
+			<tr>
+				<th>Worker</th>
+				<td id="worker"></td>
+			</tr>
+			<tr>
+				<th>Service Worker</th>
+				<td id="serviceWorker"></td>
+			</tr>
+			<tr>
+				<th>亿次加减乘除时间</th>
+				<td id="calc">计算中...</td>
+			</tr>
+			<tr>
+				<th>用户代理</th>
+				<td id="userAgent"></td>
+			</tr>
+			<tr>
+				<th>内核版本</th>
+				<td style="padding:0">
+					<table style="width:100%">
+						<tbody id="core">
+
+						</tbody>
+					</table>
+				</td>
+			</tr>
+			<tr>
+				<th>电源信息</th>
+				<td id="battery"></td>
+			</tr>
 		</tbody>
 	</table>
 	<script>
+		function calc() {
+			var startTime = Date.now()
+			for (var i = 0; i < 100000000; i++) {
+				var a = Number.MIN_VALUE + i
+			}
+			for (var i = 0; i < 100000000; i++) {
+				var a = Number.MAX_VALUE - i
+			}
+			for (var i = 0; i < 100000000; i++) {
+				var a = i * 100000;
+			}
+			for (var i = 0; i < 100000000; i++) {
+				var a = Number.MAX_VALUE / i
+			}
+			document.getElementById("calc").innerHTML = (function () {
+				return (Date.now() - startTime) + "毫秒"
+			})();
+		}
+		if (typeof navigator.getBattery === "function") {
+			navigator.getBattery().then(function (info) {
+				document.getElementById("battery").innerHTML = info.charging ? "已连接电源" : "正在使用电池"
+			});
+		} else {
+			document.getElementById("battery").innerHTML = "不支持检测"
+		}
+
 		document.getElementById("screen").innerHTML = (function () {
 			return window.screen.width + "x" + window.screen.height;
 		})();
 		document.getElementById("language").innerHTML = (function () {
-			return navigator.language
+			return navigator.language || "不支持检测"
 		})();
 		document.getElementById("platform").innerHTML = (function () {
 			return navigator.platform
 		})();
+		document.getElementById("userAgent").innerHTML = (function () {
+			return navigator.userAgent
+		})();
 		document.getElementById("deviceMemory").innerHTML = (function () {
-			return navigator.deviceMemory + "G"
+			return navigator.deviceMemory ? ("大概" + navigator.deviceMemory + "G") : "不支持检测"
+		})();
+		document.getElementById("cookieEnabled").innerHTML = (function () {
+			return navigator.cookieEnabled ? "是" : "否"
+		})();
+		document.getElementById("doNotTrack").innerHTML = (function () {
+			return navigator.doNotTrack ? "是" : "否"
+		})();
+		document.getElementById("core").innerHTML = (function () {
+			var pattern = /([^\t\s\r\n]*?)\/([\d.]+)( (\((.*?)\))?)?/g;
+			var r = null, res = "", other = "";
+			while (r = pattern.exec(navigator.userAgent)) {
+				res += "<tr><th style='width: 50px'>" + r[1] + "</th><td>" + r[2] + "</tr>";
+				if (r[5]) {
+					other += r[5] + "; ";
+				}
+			}
+			return res + "<tr><th>其他</th><td>" + other + "</td></tr>";
+		})();
+		document.getElementById("worker").innerHTML = (function () {
+			if (window.Worker) {
+				var worker = new Worker("./worker.js");
+				worker.addEventListener("message", function (ev) {
+					document.getElementById("calc").innerHTML = ev.data;
+				});
+				worker.addEventListener("error", function () {
+					calc()
+				})
+				return "支持"
+			}
+			setTimeout(calc, 0);
+			return "不支持"
+		})();
+		document.getElementById("serviceWorker").innerHTML = (function () {
+			return "serviceWorker" in navigator ? "支持" : "不支持"
 		})();
 	</script>
 </body>
