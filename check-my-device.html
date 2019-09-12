@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>检查设备信息</title>
+	<style>
+		table {
+			border-collapse: collapse;
+		}
+
+		th,
+		td {
+			padding: 5px 10px;
+			border: thin solid gray;
+		}
+	</style>
+</head>
+
+<body>
+	<noscript>
+	</noscript>
+	<table>
+		<tbody>
+			<tr>
+				<th>类型</th>
+				<td id="platform"></td>
+			</tr>
+			<tr>
+				<th>屏幕</th>
+				<td id="screen"></td>
+			</tr>
+			<tr>
+				<th>语言</th>
+				<td id="language"></td>
+			</tr>
+			<tr>
+				<th>内存</th>
+				<td id="deviceMemory"></td>
+			</tr>
+		</tbody>
+	</table>
+	<script>
+		document.getElementById("screen").innerHTML = (function () {
+			return window.screen.width + "x" + window.screen.height;
+		})();
+		document.getElementById("language").innerHTML = (function () {
+			return navigator.language
+		})();
+		document.getElementById("platform").innerHTML = (function () {
+			return navigator.platform
+		})();
+		document.getElementById("deviceMemory").innerHTML = (function () {
+			return navigator.deviceMemory + "G"
+		})();
+	</script>
+</body>
+
+</html>
